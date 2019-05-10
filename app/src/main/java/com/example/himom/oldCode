@@ -1,0 +1,120 @@
+        // Acquire a reference to the system Location Manager
+        m_locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        //Set up the text views
+        m_locationText = (TextView) findViewById(R.id.locationText);
+
+        //Set up the alarm manager
+//        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(this, sendLocationInTheBackground.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+////        Calendar time = Calendar.getInstance();
+////        time.setTimeInMillis(System.currentTimeMillis());
+////        time.add(Calendar.SECOND, 5);
+////        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
+//
+//        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HALF_HOUR, 5000, pendingIntent);
+
+//        m_alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(this, sendLocationInTheBackground.class);
+//        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+
+//        m_alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                SystemClock.elapsedRealtime() +
+////                        1000, alarmIntent);
+        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(this, sendLocationInTheBackground.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000, pi); // Millisec * Second * Minute
+        public void setUpLocation() {
+                m_locationListener = new LocationListener() {
+                    public void onLocationChanged(Location location) {
+                        // Called when a new location is found by the network location provider.
+                        showLocation(location);
+                    }
+
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                    }
+
+                    public void onProviderEnabled(String provider) {
+                    }
+
+                    public void onProviderDisabled(String provider) {
+                    }
+                };
+
+                // Register the listener with the Location Manager to receive location updates
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                m_locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, m_locationListener);
+
+            }
+
+            public void showLocation(Location location) {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    String textToSend = String.valueOf("https://www.google.com/maps/search/?api=1&query=" + location.getLatitude()) + "," + String.valueOf(location.getLongitude());
+                    smsManager.sendTextMessage("6038587719", null, textToSend, null, null);
+
+                    //Change the text
+                    m_locationText.setText("Hey I changed");
+
+                    Log.d(TAG, "showLocation: Hey we are getting into showLocation");
+                    m_locationText.setText(String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude()));
+                }
+
+                public void stopGetingLocation() {
+                    m_locationManager.removeUpdates(m_locationListener);
+                }
+
+                public void sendText() {
+                    sendLocationInTheBackground backgroundText = new sendLocationInTheBackground();
+                    backgroundText.sendLocation();
+                }
+
+                //    public boolean isSmsPermissionGranted() {
+                //        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
+                //    }
+                //
+                //    /**
+                //     * Request runtime SMS permission
+                //     */
+                //    private void requestReadAndSendSmsPermission() {
+                //        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)) {
+                //            // You may display a non-blocking explanation here, read more in the documentation:
+                //            // https://developer.android.com/training/permissions/requesting.html
+                //        }
+                //        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
+                //    }
+                                // Code here executes on main thread after user presses button
+                //                setIsStarted(true);
+                //                if (!isSmsPermissionGranted()){
+                ////                    requestReadAndSendSmsPermission();
+                ////                }
+                //        smsListener = new SmsListener();
+                //        IntentFilter filter = new IntentFilter();
+                //        filter.addAction("android.provider.Telephony.SMS_RECEIVED");
+                //        registerReceiver(smsListener, filter);
+
+                        //Create and use the sendText button
+
+                        //        //Get permissions
+                        //        getPermissionsIfNotGranted(PERMISSIONS_NEEDED);
+                        //        if (true){
+                                if ((ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED)) {
+                                    Log.d(TAG, "onCreate: hew we have the RECEIVE_SMS permission");
+                                    smsListener = new SmsListener();
+                                    IntentFilter filter = new IntentFilter();
+                                    filter.addAction("android.provider.Telephony.SMS_RECEIVED");
+                                    registerReceiver(smsListener, filter);
+                                }
