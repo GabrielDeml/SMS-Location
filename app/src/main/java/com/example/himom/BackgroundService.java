@@ -3,9 +3,13 @@ package com.example.himom;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
+
+import static android.content.ContentValues.TAG;
 
 public class BackgroundService extends Service {
 
@@ -15,6 +19,8 @@ public class BackgroundService extends Service {
         return null;
     }
 
+    public String[] m_numberArray;
+    public SmsListener m_smsListener;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -29,9 +35,12 @@ public class BackgroundService extends Service {
         // Set broadcast receiver priority.
         intentFilter.setPriority(100);
 
+        m_numberArray = new String[]{"16038587719"};
+        m_smsListener = new SmsListener(m_numberArray);
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.provider.Telephony.SMS_RECEIVED");
-//        registerReceiver(smsListener, filter);
+        registerReceiver(m_smsListener, filter);
+        Log.d(TAG, "onCreate: Hello from the background");
 
 //        // Create a network change broadcast receiver.
 //        screenOnOffReceiver = new ScreenOnOffReceiver();
@@ -45,7 +54,7 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        unregisterReceiver(m_smsListener);
     }
 
 }
