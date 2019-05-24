@@ -1,7 +1,5 @@
 package com.example.himom;
 
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +12,7 @@ public class test extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        m_backgroundService = new Intent(getApplicationContext(), BackgroundService.class);
+        m_backgroundService = new Intent(getApplicationContext(), BackgroundServiceOld.class);
         Button startButton = findViewById(R.id.testBackground);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
